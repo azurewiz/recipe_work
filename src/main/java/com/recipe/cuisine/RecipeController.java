@@ -344,25 +344,7 @@ public ResponseEntity<RecipeListResponse> getRecipesPaginated(
     public List<Recipe> searchRecipes(@RequestParam String cuisine, @RequestParam String ingredient) {
         return recipeRepository.findByCuisineIgnoreCaseAndIngredientsContainingIgnoreCase(cuisine, ingredient);
     }
-    @GetMapping("/search/by-calories") 
-    public List<RecipeListResponse.RecipeDto> searchRecipesByCalories(
-            @RequestParam int maxCalories) { 
-        
-        List<Recipe> foundRecipes = recipeRepository.findByNutrients_CaloriesLessThanEqual(maxCalories);
-        
-
-        return foundRecipes.stream()
-                .map(recipe -> {
-                    RecipeListResponse.RecipeDto dto = new RecipeListResponse.RecipeDto();
-                    dto.setId(recipe.getId());
-                    dto.setTitle(recipe.getName());
-                    dto.setCuisine(recipe.getCuisine());
-                    dto.setRating(recipe.getRating());
-                    dto.setPrepTime(recipe.getPrepTime());
-                    return dto;
-                })
-                .collect(Collectors.toList());
-    }
+    
 
 
        

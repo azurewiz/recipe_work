@@ -48,23 +48,7 @@ public class Recipe {
 
     @Data 
     public static class Nutrients { 
-        @JsonProperty("calories")
-
-        private int calories;
-
-        public void setCaloriesString(String caloriesString) {
-            this.calories = calories;
-            if (caloriesString != null && caloriesString.endsWith(" kcal")) {
-                try {
-                    this.calories = Integer.parseInt(caloriesString.replace(" kcal", "").trim());
-                } catch (NumberFormatException e) {
-                    this.calories = 0; 
-                    System.err.println("Warning: Could not parse calories: " + caloriesString);
-                }
-            } else {
-                this.calories = 0; 
-            }
-        }
+        
 
       
         @JsonProperty("carbohydrateContent")
