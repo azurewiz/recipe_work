@@ -27,8 +27,7 @@ public class Recipe {
     @JsonProperty("rating")
     private double rating;
 
-    @JsonProperty("nutrients") 
-    private Nutrients nutrients; 
+    
    
     @JsonProperty("Contient")
     private String continent; 
@@ -46,28 +45,5 @@ public class Recipe {
     private String serves; 
 
 
-    @Data 
-    public static class Nutrients { 
-        
-
-      
-        @JsonProperty("carbohydrateContent")
-        private String carbohydrateContent;
-        @JsonProperty("cholesterolContent")
-        private String cholesterolContent;
-        @JsonProperty("fiberContent")
-        private String fiberContent;
-        @JsonProperty("proteinContent")
-        private String proteinContent;
-        @JsonProperty("saturatedFatContent")
-        private String saturatedFatContent;
-        @JsonProperty("sodiumContent")
-        private String sodiumContent;
-        @JsonProperty("sugarContent")
-        private String sugarContent;
-        @JsonProperty("fatContent")
-        private String fatContent;
-        @JsonProperty("unsaturatedFatContent")
-        private String unsaturatedFatContent;
-    }
+    
 }

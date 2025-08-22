@@ -11,7 +11,7 @@ public interface RecipeRepository extends MongoRepository<Recipe, String> {
 
 
    List<Recipe> findByCuisineIgnoreCaseAndIngredientsContainingIgnoreCase(String cuisine, String ingredient);
-   List<Recipe> findByNutrients_CaloriesLessThanEqual(int calories);
+   
 }
 
 
