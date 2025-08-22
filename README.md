@@ -90,5 +90,40 @@ json
   "serves": "8 servings"
 }
 
+## 3. API Testing Instructions
+### 3.1 Setup
+Clone/Copy Project: Get the Spring Boot project files onto your machine.
+Ensure MongoDB Atlas is Set Up: Follow the steps in Section 2.1 to configure your MongoDB Atlas cluster, database user, and network access.
+Place US_recipes_null.json: Ensure the US_recipes_null.json file is located in your src/main/resources directory and has the correct JSON object format (keys like "0", "1" mapping to recipe objects).
+Update application.properties: Edit src/main/resources/application.properties to include your specific MongoDB Atlas connection URI (with correct username, password, and database name).
+Build the Project: Open a terminal in the project's root directory and run mvn clean install or ./gradlew clean build.
+Run the Spring Boot Application:
+Using Maven: mvn spring-boot:run
+Using IDE (e.g., IntelliJ IDEA): Right-click CuisineApplication.java and select "Run".
+Using executable JAR: java -jar target/cuisine-0.0.1-SNAPSHOT.jar (after running mvn clean install)
+Confirm Application Startup: Look for console output indicating the application has started and is listening on server.port = 8080 and connected to MongoDB. 
+
+### 3.2 Sample Requests (using curl)
+Use the terminal or a tool like Postman/Insomnia to send these requests. Replace <ID> with an actual recipe ID retrieved from the GET /api/recipes or database. 
+#### 1. Ingest Recipes (POST)
+Purpose: Load the recipes from US_recipes_null.json into the MongoDB database.
+Endpoint: POST http://localhost:8080/api/recipes/ingest
+
+curl -X POST http://localhost:8080/api/recipes/ingest
+output:Ingested 8451 recipes successfully.
+
+#### 2. Get Paginated Recipes (GET)
+Purpose: Retrieve a list of recipes with pagination. Pages are 0-indexed.
+Endpoint: GET http://localhost:8080/api/recipes
+bash: curl "http://localhost:8080/api/recipes?page=1&limit=10" 
+output recieved:{"page":1,"limit":10,"total":8451,"data":[{"id":"68a81ee602503769cc144f71","title":null,"cuisine":"Southern Recipes","rating":0.0,"prep_time":0},{"id":"68a81ee602503769cc144f6f","title":null,"cuisine":"Southern Recipes","rating":0.0,"prep_time":0},{"id":"68a81ee602503769cc144f69","title":null,"cuisine":"Southern Recipes","rating":0.0,"prep_time":0},{"id":"68a81ee602503769cc144f73","title":null,"cuisine":"Southern Recipes","rating":0.0,"prep_time":0},{"id":"68a81ee602503769cc144f65","title":null,"cuisine":"Southern Recipes","rating":0.0,"prep_time":0},{"id":"68a81ee602503769cc144f6b","title":null,"cuisine":"Southern Recipes","rating":0.0,"prep_time":0},{"id":"68a81ee602503769cc144f62","title":null,"cuisine":"Southern Recipes","rating":0.0,"prep_time":0},{"id":"68a81ee602503769cc144f64","title":null,"cuisine":"Southern Recipes","rating":0.0,"prep_time":0},{"id":"68a81ee602503769cc144f68","title":null,"cuisine":"Southern Recipes","rating":0.0,"prep_time":0},{"id":"68a81ee602503769cc144f70","title":null,"cuisine":"Southern Recipes","rating":0.0,"prep_time":0}]}
+
+#### 3. Search Recipes by Cuisine and Ingredient (GET)
+Purpose: Find recipes matching specific cuisine and ingredient criteria. Remember to handle case sensitivity based on your data and whether you implemented case-insensitive search.
+Endpoint: GET http://localhost:8080/api/recipes/search
+
+bash:curl "http://localhost:8080/api/recipes/search?cuisine=American&ingredient=Chicken”    
+output :[]
+
 
 
