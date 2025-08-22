@@ -3,8 +3,12 @@
 
 package com.recipe.cuisine;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.Data;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -14,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.stream.Collectors;
 import java.io.IOException;
 import java.util.List;
 
@@ -34,8 +39,39 @@ public class RecipeController {
         this.resourceLoader = resourceLoader;
     }
 
+/*keeping this as a base:
+List<YearBrandDTO> years = yearRepository.findAll().stream()
+    .map(year -> {
+        List<Brand> filteredBrands = year.getBrands().stream()
+            .filter(brand -> brand.getName().equals("Toyota"))
+            .collect(Collectors.toList());
 
-    
+        YearBrandDTO yearBrandDTO = modelMapper.map(year, YearBrandDTO.class);
+        yearBrandDTO.setBrands(filteredBrands);
+        return yearBrandDTO;
+    })
+    .collect(Collectors.toList()); */
+List<RecipeDTO> y = recipeRepository.findAll().stream();
+
+@Data 
+class RecipeListResponse {
+    private int page;
+    private int limit;
+    private long total; 
+    private List<RecipeDto> data;
+
+    @Data
+    static class RecipeDto { 
+        private String id; 
+        private String title; 
+        private String cuisine;
+        private double rating;
+        @JsonProperty("prep_time") 
+        private int prepTime;
+        
+    }
+}
+
 
 @PostMapping("/ingest")
 public ResponseEntity<String> ingestRecipes() {
@@ -111,3 +147,4 @@ public ResponseEntity<String> ingestRecipes() {
         }
     }
 }
+

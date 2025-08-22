@@ -27,7 +27,8 @@ public class Recipe {
     @JsonProperty("rating")
     private double rating;
 
-    
+    @JsonProperty("nutrients") 
+    private String nutrients; 
    
     @JsonProperty("Contient")
     private String continent; 
@@ -43,6 +44,7 @@ public class Recipe {
     private List<String> instructions;
  
     private String serves; 
-    
+
+
     
 }
