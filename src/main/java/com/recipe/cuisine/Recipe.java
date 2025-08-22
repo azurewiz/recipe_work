@@ -43,7 +43,6 @@ public class Recipe {
     private List<String> instructions;
  
     private String serves; 
-
-
+    
     
 }
