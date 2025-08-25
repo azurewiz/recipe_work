@@ -3,26 +3,19 @@
 
 package com.recipe.cuisine;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.Data;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.stream.Collectors;
 import java.io.IOException;
 import java.util.List;
-
-import java.util.Optional;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/recipes")
@@ -30,113 +23,80 @@ public class RecipeController {
 
     private final RecipeRepository recipeRepository;
     private final ObjectMapper objectMapper;
-    private final ResourceLoader resourceLoader;
 
     @Autowired
-    public RecipeController(RecipeRepository recipeRepository, ObjectMapper objectMapper, ResourceLoader resourceLoader) {
+    public RecipeController(RecipeRepository recipeRepository, ObjectMapper objectMapper) {
         this.recipeRepository = recipeRepository;
         this.objectMapper = objectMapper;
-        this.resourceLoader = resourceLoader;
     }
 
-/*keeping this as a base:
-List<YearBrandDTO> years = yearRepository.findAll().stream()
-    .map(year -> {
-        List<Brand> filteredBrands = year.getBrands().stream()
-            .filter(brand -> brand.getName().equals("Toyota"))
-            .collect(Collectors.toList());
+    // POST Endpoint for bulk ingestion (updated for the new JSON format)
+    @PostMapping("/ingest")
+    public ResponseEntity<String> ingestRecipes() {
+        try {
+            // Read the JSON file into a Map<String, Recipe>
+            Map<String, Recipe> recipesMap = objectMapper.readValue(
+                this.getClass().getResourceAsStream("/US_recipes_null.json"),
+                new TypeReference<Map<String, Recipe>>() {}
+            );
 
-        YearBrandDTO yearBrandDTO = modelMapper.map(year, YearBrandDTO.class);
-        yearBrandDTO.setBrands(filteredBrands);
-        return yearBrandDTO;
-    })
-    .collect(Collectors.toList()); */
-List<RecipeDTO> y = recipeRepository.findAll().stream();
+            // Extract the Recipe objects from the map's values
+            List<Recipe> recipes = recipesMap.values().stream().collect(Collectors.toList());
 
-@Data 
-class RecipeListResponse {
-    private int page;
-    private int limit;
-    private long total; 
-    private List<RecipeDto> data;
-
-    @Data
-    static class RecipeDto { 
-        private String id; 
-        private String title; 
-        private String cuisine;
-        private double rating;
-        @JsonProperty("prep_time") 
-        private int prepTime;
-        
-    }
-}
-
-
-@PostMapping("/ingest")
-public ResponseEntity<String> ingestRecipes() {
-    try {
-        Resource resource = resourceLoader.getResource("classpath:US_recipes_null.json");
-        List<Recipe> allRecipes = objectMapper.readValue(resource.getInputStream(), new TypeReference<List<Recipe>>() {});
-
-        int batchSize = 1500; 
-        int totalIngested = 0;
-
-        for (int i = 0; i < allRecipes.size(); i += batchSize) {
-            int endIndex = Math.min(i + batchSize, allRecipes.size());
-            List<Recipe> batch = allRecipes.subList(i, endIndex);
-            recipeRepository.saveAll(batch);
-            totalIngested += batch.size();
+            // Bulk insert into MongoDB
+            recipeRepository.saveAll(recipes);
+            
+            return ResponseEntity.ok("Ingested " + recipes.size() + " recipes successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Failed to ingest recipes: " + e.getMessage());
         }
-
-        return ResponseEntity.ok("Ingested " + totalIngested + " recipes successfully.");
-    } catch (IOException e) {
-        e.printStackTrace();
-        return ResponseEntity.badRequest().body("Failed to ingest recipes: " + e.getMessage());
-    } catch (Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.internalServerError().body("An unexpected error occurred: " + e.getMessage());
     }
-}
 
-
+    // GET Endpoint for pagination and sorting
     @GetMapping
     public Page<Recipe> getRecipesPaginated(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-
-        Sort sort = Sort.by(Sort.Direction.DESC, "prepTime");
+        
+        // Sorting by prep_time (the field in the JSON)
+        Sort sort = Sort.by(Sort.Direction.DESC, "prep_time");
         Pageable pageable = PageRequest.of(page, size, sort);
         return recipeRepository.findAll(pageable);
     }
-
-
+    
+    // GET Endpoint to search by cuisine and ingredient
     @GetMapping("/search")
     public List<Recipe> searchRecipes(@RequestParam String cuisine, @RequestParam String ingredient) {
-        return recipeRepository.findByCuisineIgnoreCaseAndIngredientsContainingIgnoreCase(cuisine, ingredient);
+        return recipeRepository.findByCuisineAndIngredientsContaining(cuisine, ingredient);
     }
 
-
+    // GET Endpoint to search by max calories
+    @GetMapping("/search/by-calories")
+    public List<Recipe> searchByCalories(@RequestParam String maxCalories) {
+        return recipeRepository.findByNutrientsCaloriesLessThanEqual(maxCalories);
+    }
+    
+    // GET Endpoint to retrieve a single recipe by its ID
     @GetMapping("/{id}")
     public ResponseEntity<Recipe> findById(@PathVariable String id) {
-        Optional<Recipe> recipe = recipeRepository.findById(id);
-        return recipe.map(ResponseEntity::ok)
-                     .orElse(ResponseEntity.notFound().build());
+        return recipeRepository.findById(id)
+                               .map(ResponseEntity::ok)
+                               .orElse(ResponseEntity.notFound().build());
     }
 
-
+    // PUT Endpoint to update an existing recipe
     @PutMapping("/{id}")
     public ResponseEntity<Recipe> updateRecipe(@PathVariable String id, @RequestBody Recipe updatedRecipe) {
         return recipeRepository.findById(id).map(recipe -> {
-            recipe.setName(updatedRecipe.getName());
+            recipe.setTitle(updatedRecipe.getTitle());
             recipe.setCuisine(updatedRecipe.getCuisine());
-            recipe.setIngredients(updatedRecipe.getIngredients());
-            recipe.setPrepTime(updatedRecipe.getPrepTime());
+            // You would need to update all fields here
             return ResponseEntity.ok(recipeRepository.save(recipe));
         }).orElse(ResponseEntity.notFound().build());
     }
 
-
+    // DELETE Endpoint to delete a recipe by its ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRecipe(@PathVariable String id) {
         if (recipeRepository.existsById(id)) {
@@ -147,4 +107,3 @@ public ResponseEntity<String> ingestRecipes() {
         }
     }
 }
-

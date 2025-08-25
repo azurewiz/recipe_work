@@ -1,50 +1,37 @@
 package com.recipe.cuisine;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.data.mongodb.core.mapping.Field;
 import java.util.List;
 
 @Document(collection = "recipes")
 @Data
+@NoArgsConstructor
 public class Recipe {
 
     @Id
     private String id;
-
-    @JsonProperty("title")
-    private String name;
-
-    private String cuisine;
-
-    @JsonProperty("ingredients")
-    private List<String> ingredients;
-
-    @JsonProperty("prep_time")
-    private int prepTime;
-
-    @JsonProperty("rating")
-    private double rating;
-
-    @JsonProperty("nutrients") 
-    private String nutrients; 
-   
-    @JsonProperty("Contient")
-    private String continent; 
-    @JsonProperty("Country_State")
-    private String countryState;
-    @JsonProperty("URL")
-    private String url;
-    @JsonProperty("total_time")
-    private int totalTime;
-    @JsonProperty("description")
-    private String description;
-    @JsonProperty("instructions")
-    private List<String> instructions;
- 
-    private String serves; 
-
-
     
+    // The key "0", "1", etc. from the JSON file
+    // We will handle this in the ingestion logic
+
+    @Field("Contient")
+    private String continent;
+    @Field("Country_State")
+    private String countryState;
+    private String cuisine;
+    private String title;
+    private String URL;
+    private Double rating;
+    private Integer total_time;
+    private Integer prep_time;
+    private Integer cook_time;
+    private String description;
+    private List<String> ingredients;
+    private List<String> instructions;
+    private Nutrients nutrients;
+    private String serves;
 }
