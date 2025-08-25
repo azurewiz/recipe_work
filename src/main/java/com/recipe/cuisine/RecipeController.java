@@ -18,7 +18,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/recipes")
+@RequestMapping("/api/d2")
+@CrossOrigin(origins = "http://localhost:8080")
 public class RecipeController {
 
     private final RecipeRepository recipeRepository;

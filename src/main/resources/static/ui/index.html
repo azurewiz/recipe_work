@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Manager UI</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Recipe Management</h1>
+
+        <div class="controls">
+            <button id="ingestBtn">Ingest Recipes from JSON</button>
+            <span id="ingest-message"></span>
+        </div>
+
+        <div class="controls">
+            <h3>Search for Recipes</h3>
+            <label for="cuisine">Cuisine:</label>
+            <input type="text" id="cuisine" placeholder="e.g., American">
+            <label for="ingredient">Ingredient:</label>
+            <input type="text" id="ingredient" placeholder="e.g., chicken">
+            <button id="searchBtn">Search</button>
+        </div>
+
+        <hr>
+
+        <h2>All Recipes (Paginated)</h2>
+        <div class="recipe-list" id="recipe-list"></div>
+
+        <div class="pagination">
+            <button id="prevBtn">Previous</button>
+            <button id="nextBtn">Next</button>
+            <span id="page-info"></span>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

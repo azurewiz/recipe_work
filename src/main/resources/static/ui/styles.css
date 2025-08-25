@@ -1,0 +1,8 @@
+body { font-family: sans-serif; margin: 2rem; }
+.container { max-width: 800px; margin: auto; }
+.controls { margin-bottom: 1rem; }
+.recipe-list { border-top: 1px solid #ccc; margin-top: 1rem; }
+.recipe-item { border-bottom: 1px solid #eee; padding: 0.5rem 0; }
+.recipe-item h4 { margin: 0; }
+.pagination { margin-top: 1rem; }
+.pagination button { margin: 0 0.5rem; }
